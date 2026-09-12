@@ -6,15 +6,15 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="movie-recommender",
     version="1.0.0",
-    author="techn4r",
+    author="Stepan Sivitskii",
     author_email="stepan.sivitsky@yandex.ru",
     description="A movie recommendation system using collaborative filtering",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/techn4r/movie-recommender",
+    url="https://github.com/ssivitskii/Movie-Recommender",
     project_urls={
-        "Bug Tracker": "https://github.com/techn4r/movie-recommender/issues",
-        "Documentation": "https://github.com/techn4r/movie-recommender#readme",
+        "Bug Tracker": "https://github.com/ssivitskii/Movie-Recommender/issues",
+        "Documentation": "https://github.com/ssivitskii/Movie-Recommender#readme",
     },
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -64,3 +64,4 @@ setup(
     include_package_data=True,
     zip_safe=False,
 )
+
