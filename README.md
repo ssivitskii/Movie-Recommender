@@ -1,251 +1,86 @@
-# 🎬 Movie Recommender System
+# Movie Recommender
 
-[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)](https://scikit-learn.org)
+**A comparison of collaborative, content-based and hybrid recommendation methods on MovieLens.**
 
-Рекомендательная система фильмов на основе коллаборативной фильтрации и контентного подхода. Проект использует датасет MovieLens и предоставляет как CLI-интерфейс, так и веб-приложение на Streamlit.
+[Source](https://github.com/ssivitskii/Movie-Recommender) · [Issues](https://github.com/ssivitskii/Movie-Recommender/issues) · [Contributing](CONTRIBUTING.md)
 
-![Demo](https://via.placeholder.com/800x400?text=Movie+Recommender+Demo)
+## What it does
 
-## 📋 Содержание
+Generates recommendations for existing users and finds similar movies. The repository exposes a Python interface, command-line scripts and a Streamlit app.
 
-- [Особенности](#-особенности)
-- [Установка](#-установка)
-- [Быстрый старт](#-быстрый-старт)
-- [Архитектура](#-архитектура)
-- [Использование](#-использование)
-- [API](#-api)
-- [Результаты](#-результаты)
-- [Структура проекта](#-структура-проекта)
-- [Технологии](#-технологии)
-- [Лицензия](#-лицензия)
+| Model key | Approach |
+| --- | --- |
+| `svd` | Matrix factorization |
+| `user_cf` | User-based collaborative filtering |
+| `item_cf` | Item-based collaborative filtering |
+| `content` | Content-based similarity |
+| `hybrid` | Weighted combination of SVD, item-based and content models |
 
-## ✨ Особенности
+**Stack:** Python · NumPy · pandas · SciPy · scikit-learn · Streamlit
 
-- **Коллаборативная фильтрация** — рекомендации на основе схожести пользователей (User-Based CF) и фильмов (Item-Based CF)
-- **Матричная факторизация** — SVD-разложение для выявления латентных факторов
-- **Контентная фильтрация** — рекомендации по жанрам и характеристикам фильмов
-- **Гибридный подход** — комбинация нескольких методов для повышения качества
-- **Веб-интерфейс** — удобное Streamlit-приложение
-- **Метрики качества** — RMSE, MAE, Precision@K, Recall@K, NDCG
+## Run locally
 
-## 🚀 Установка
-
-### Требования
-
-- Python 3.9+
-- pip или conda
-
-### Шаги установки
+Use Python 3.11:
 
 ```bash
-# Клонируйте репозиторий
-git clone https://github.com/yourusername/movie-recommender.git
-cd movie-recommender
-
-# Создайте виртуальное окружение
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# или
-venv\Scripts\activate  # Windows
-
-# Установите зависимости
-pip install -r requirements.txt
-
-# Скачайте данные
-python src/data_loader.py
+git clone https://github.com/ssivitskii/Movie-Recommender.git
+cd Movie-Recommender
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[dev,web]"
 ```
 
-## 🏃 Быстрый старт
+The data loader downloads MovieLens on first use; network access is required. Supported datasets are `ml-100k`, `ml-1m` and `ml-latest-small`. Start with `ml-100k` because some implementations construct dense matrices.
+
+```bash
+# Train and evaluate
+python -m src.train --model svd --dataset ml-100k --epochs 20 --evaluate
+
+# Compare implementations; this trains models again
+python -m src.evaluate --model all --dataset ml-100k
+
+# Open the web interface
+python -m streamlit run streamlit_app.py
+```
+
+### Python interface
 
 ```python
 from src.recommender import MovieRecommender
 
-# Инициализация и обучение
-recommender = MovieRecommender()
+recommender = MovieRecommender(dataset="ml-100k", model="svd")
 recommender.fit()
-
-# Получение рекомендаций для пользователя
 recommendations = recommender.recommend_for_user(user_id=1, n=10)
 print(recommendations)
 
-# Поиск похожих фильмов
-similar = recommender.find_similar_movies("Toy Story (1995)", n=5)
-print(similar)
+# Select model="hybrid" to train the weighted hybrid implementation.
 ```
 
-### Запуск веб-приложения
+## Evaluation and limitations
 
 ```bash
-streamlit run app/streamlit_app.py
+python -m pytest
 ```
 
-## 🏗 Архитектура
+The evaluation code computes rating errors (RMSE and MAE) and ranking metrics including Precision@K, Recall@K and NDCG@K. Record the dataset, filtering, split, model parameters and relevance threshold with each experiment. No versioned benchmark report is included, so this README does not advertise fixed quality or latency numbers.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      User Interface                          │
-│                 (Streamlit / CLI / API)                      │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-┌─────────────────────────▼───────────────────────────────────┐
-│                   Hybrid Recommender                         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │ User-Based  │  │ Item-Based  │  │ Content-Based       │  │
-│  │     CF      │  │     CF      │  │ (Genre Similarity)  │  │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
-│                          │                                   │
-│              ┌───────────▼───────────┐                      │
-│              │   Matrix Factorization │                      │
-│              │        (SVD)           │                      │
-│              └───────────────────────┘                      │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-┌─────────────────────────▼───────────────────────────────────┐
-│                     Data Layer                               │
-│            (MovieLens Dataset + Preprocessing)               │
-└─────────────────────────────────────────────────────────────┘
-```
+The default data split is random, not chronological. The hybrid uses fixed weights (SVD 0.5, item-based 0.3, content-based 0.2). Dense matrices limit scalability, and cold-start handling is not a production solution.
 
-## 📖 Использование
+The saved-model CLI paths need further work: `src.predict --model-path` refers to a missing `load_model` method, and loading does not restore all state used by evaluation. Use the in-memory training workflow above. `--show-history` and `--similar-to` in the prediction script are also incomplete.
 
-### CLI-интерфейс
+## Repository map
 
-```bash
-# Обучение модели
-python -m src.train --model svd --epochs 20
+| Path | Purpose |
+| --- | --- |
+| `src/recommender.py` | Python orchestration interface |
+| `src/models.py` | Recommendation algorithms |
+| `src/data_loader.py` | MovieLens loading and preparation |
+| `src/metrics.py` | Evaluation metrics |
+| `src/train.py`, `src/evaluate.py` | Training and comparison CLI |
+| `streamlit_app.py` | Web interface |
+| `notebooks/01_eda.py` | Exploratory analysis script |
+| `tests/` | Automated tests |
 
-# Получение рекомендаций
-python -m src.predict --user-id 42 --top-n 10
+## License and data
 
-# Оценка качества
-python -m src.evaluate --model svd
-```
-
-### Python API
-
-```python
-from src.recommender import MovieRecommender
-from src.models import SVDModel, ItemBasedCF, ContentBasedFilter
-
-# Использование конкретной модели
-svd_model = SVDModel(n_factors=100, n_epochs=20, lr=0.005, reg=0.02)
-recommender = MovieRecommender(model=svd_model)
-recommender.fit()
-
-# Гибридные рекомендации
-recommendations = recommender.recommend_hybrid(
-    user_id=1,
-    n=10,
-    weights={'cf': 0.6, 'content': 0.4}
-)
-```
-
-## 📊 Результаты
-
-### Метрики на тестовой выборке (MovieLens 100K)
-
-| Модель | RMSE | MAE | Precision@10 | Recall@10 |
-|--------|------|-----|--------------|-----------|
-| User-Based CF | 0.98 | 0.77 | 0.32 | 0.18 |
-| Item-Based CF | 0.94 | 0.74 | 0.35 | 0.21 |
-| SVD | 0.87 | 0.68 | 0.41 | 0.26 |
-| **Hybrid** | **0.85** | **0.66** | **0.44** | **0.29** |
-
-### Пример рекомендаций
-
-Для пользователя, который высоко оценил "The Matrix", "Inception", "Interstellar":
-
-1. 🎬 The Dark Knight (2008) — predicted: 4.8
-2. 🎬 Blade Runner 2049 (2017) — predicted: 4.6
-3. 🎬 Arrival (2016) — predicted: 4.5
-4. 🎬 Ex Machina (2014) — predicted: 4.4
-5. 🎬 Prestige, The (2006) — predicted: 4.3
-
-## 📁 Структура проекта
-
-```
-movie-recommender/
-├── README.md
-├── LICENSE
-├── requirements.txt
-├── setup.py
-├── .gitignore
-├── app/
-│   └── streamlit_app.py          # Веб-интерфейс
-├── data/
-│   ├── raw/                      # Исходные данные
-│   └── processed/                # Обработанные данные
-├── models/
-│   └── trained/                  # Сохранённые модели
-├── notebooks/
-│   ├── 01_eda.ipynb             # Разведочный анализ
-│   ├── 02_modeling.ipynb        # Эксперименты с моделями
-│   └── 03_evaluation.ipynb      # Оценка качества
-├── src/
-│   ├── __init__.py
-│   ├── data_loader.py           # Загрузка данных
-│   ├── preprocessing.py         # Предобработка
-│   ├── models.py                # Модели рекомендаций
-│   ├── recommender.py           # Основной класс
-│   ├── metrics.py               # Метрики качества
-│   ├── train.py                 # Скрипт обучения
-│   ├── predict.py               # Скрипт предсказаний
-│   └── evaluate.py              # Скрипт оценки
-└── tests/
-    ├── test_models.py
-    ├── test_recommender.py
-    └── test_metrics.py
-```
-
-## 🛠 Технологии
-
-- **Python 3.9+** — основной язык
-- **NumPy, Pandas** — работа с данными
-- **Scikit-learn** — ML-алгоритмы и метрики
-- **SciPy** — разреженные матрицы и SVD
-- **Streamlit** — веб-интерфейс
-- **Pytest** — тестирование
-- **Black, Ruff** — форматирование и линтинг
-
-## 🔬 Теоретическая база
-
-### Коллаборативная фильтрация
-
-Основана на предположении, что пользователи со схожими предпочтениями в прошлом будут иметь схожие предпочтения в будущем.
-
-**User-Based CF:**
-$$sim(u, v) = \frac{\sum_{i \in I_{uv}} (r_{ui} - \bar{r}_u)(r_{vi} - \bar{r}_v)}{\sqrt{\sum_{i \in I_{uv}} (r_{ui} - \bar{r}_u)^2} \sqrt{\sum_{i \in I_{uv}} (r_{vi} - \bar{r}_v)^2}}$$
-
-**Item-Based CF:**
-$$\hat{r}_{ui} = \frac{\sum_{j \in N(i;u)} sim(i, j) \cdot r_{uj}}{\sum_{j \in N(i;u)} |sim(i, j)|}$$
-
-### Матричная факторизация (SVD)
-
-Разложение матрицы рейтингов R на произведение матриц пользователей P и фильмов Q:
-$$R \approx P \times Q^T$$
-
-Оптимизация с регуляризацией:
-$$\min_{p, q} \sum_{(u, i) \in K} (r_{ui} - p_u^T q_i)^2 + \lambda(||p_u||^2 + ||q_i||^2)$$
-
-## 🤝 Вклад в проект
-
-1. Форкните репозиторий
-2. Создайте ветку для фичи (`git checkout -b feature/amazing-feature`)
-3. Закоммитьте изменения (`git commit -m 'Add amazing feature'`)
-4. Запушьте ветку (`git push origin feature/amazing-feature`)
-5. Откройте Pull Request
-
-## 📄 Лицензия
-
-Распространяется под лицензией MIT. См. файл [LICENSE](LICENSE) для подробностей.
-
-## 📧 Контакты
-
-- GitHub: [@ssivitskiy](https://github.com/ssivitskiy)
-- Email: stepan.sivitsky@yandex.ru
-
----
-
-⭐ Если проект был полезен, поставьте звезду!
+Code: [MIT](LICENSE). MovieLens datasets are provided by [GroupLens](https://grouplens.org/datasets/movielens/) under their own usage terms.
