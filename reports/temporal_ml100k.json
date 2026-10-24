@@ -1,0 +1,298 @@
+{
+  "dataset": "MovieLens 100K",
+  "source": "https://files.grouplens.org/datasets/movielens/ml-100k.zip",
+  "input_sha256": "06416e597f82b7342361e41163890c81036900f418ad91315590814211dca490",
+  "source_sha256": "3328bad49f07867c4563a879d5891c7a235de3751f41133e5657be617ecc6e72",
+  "protocol": {
+    "split": "global chronological 70/15/15 of unique timestamps",
+    "candidate_catalog": "items observed before each evaluation cutoff",
+    "relevance": "rating >= 4; already rated items excluded",
+    "aggregation": "macro mean over users with held-out positives",
+    "missing_relevant": "unseen catalog targets remain in recall/NDCG denominator",
+    "bootstrap": "500 resamples of users, seed 42; conditional on fixed models",
+    "parameters": {
+      "item_neighbors": 50,
+      "svd_factors": 32,
+      "seed": 42
+    },
+    "selection": "fixed parameters; no test selection",
+    "validation_start": 886890015,
+    "test_start": 891033830
+  },
+  "rows": {
+    "train": 69542,
+    "validation": 14943,
+    "test": 15515
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.16.3",
+    "scikit_learn": "1.7.2",
+    "platform": "macOS-26.0.1-arm64-arm-64bit"
+  },
+  "models": {
+    "popularity": {
+      "validation": {
+        "ndcg_at_10": 0.23261708601339257,
+        "recall_at_20": 0.1147379899240246,
+        "users": 238,
+        "coverage_at_10": 0.04328453214513049,
+        "train_catalog_items": 1571,
+        "unavailable_relevant_fraction": 0.013368983957219251,
+        "latency_ms_p50": 0.034729018807411194,
+        "latency_ms_p95": 0.08978749392554164,
+        "bootstrap_95_ci": {
+          "ndcg_at_10": [
+            0.19958533915072837,
+            0.26916786090433004
+          ],
+          "recall_at_20": [
+            0.0997916645334334,
+            0.13267414932322594
+          ]
+        },
+        "slices": {
+          "cold_user": {
+            "users": 133,
+            "ndcg_at_10": 0.32010129190391245,
+            "recall_at_20": 0.11843826580425619
+          },
+          "short_history_1_to_9": {
+            "users": 2,
+            "ndcg_at_10": 0.1061131829864573,
+            "recall_at_20": 0.21333333333333332
+          },
+          "history_10_plus": {
+            "users": 103,
+            "ndcg_at_10": 0.12210842992227332,
+            "recall_at_20": 0.10804549109985546
+          },
+          "has_unavailable_relevant_item": {
+            "users": 69,
+            "ndcg_at_10": 0.238438134132403,
+            "recall_at_20": 0.07193654903883799
+          }
+        }
+      },
+      "test": {
+        "ndcg_at_10": 0.2686856473622108,
+        "recall_at_20": 0.1293036258573055,
+        "users": 219,
+        "coverage_at_10": 0.046740467404674045,
+        "train_catalog_items": 1626,
+        "unavailable_relevant_fraction": 0.006846970215679562,
+        "latency_ms_p50": 0.03266602288931608,
+        "latency_ms_p95": 0.09018361452035605,
+        "bootstrap_95_ci": {
+          "ndcg_at_10": [
+            0.22885149440632152,
+            0.3053542901782454
+          ],
+          "recall_at_20": [
+            0.10942155532753886,
+            0.1500292806920631
+          ]
+        },
+        "slices": {
+          "cold_user": {
+            "users": 142,
+            "ndcg_at_10": 0.334344454263854,
+            "recall_at_20": 0.12103154783366683
+          },
+          "short_history_1_to_9": {
+            "users": 5,
+            "ndcg_at_10": 0.2069433399028381,
+            "recall_at_20": 0.14087481146304676
+          },
+          "history_10_plus": {
+            "users": 72,
+            "ndcg_at_10": 0.1434795495464265,
+            "recall_at_20": 0.14481444740352753
+          },
+          "has_unavailable_relevant_item": {
+            "users": 38,
+            "ndcg_at_10": 0.2643411244751412,
+            "recall_at_20": 0.09061478170248817
+          }
+        }
+      },
+      "test_fit_seconds": 0.017632125003729016
+    },
+    "item_cosine": {
+      "validation": {
+        "ndcg_at_10": 0.2323645971650402,
+        "recall_at_20": 0.11386320445059774,
+        "users": 238,
+        "coverage_at_10": 0.0852959898154042,
+        "train_catalog_items": 1571,
+        "unavailable_relevant_fraction": 0.013368983957219251,
+        "latency_ms_p50": 0.04249950870871544,
+        "latency_ms_p95": 0.16552056185901165,
+        "bootstrap_95_ci": {
+          "ndcg_at_10": [
+            0.19803717849772245,
+            0.26831741098373246
+          ],
+          "recall_at_20": [
+            0.09806242134333003,
+            0.1310906028403704
+          ]
+        },
+        "slices": {
+          "cold_user": {
+            "users": 133,
+            "ndcg_at_10": 0.32010129190391245,
+            "recall_at_20": 0.11843826580425619
+          },
+          "short_history_1_to_9": {
+            "users": 2,
+            "ndcg_at_10": 0.20764038354437064,
+            "recall_at_20": 0.19333333333333333
+          },
+          "history_10_plus": {
+            "users": 103,
+            "ndcg_at_10": 0.11955360713563558,
+            "recall_at_20": 0.1064124916564031
+          },
+          "has_unavailable_relevant_item": {
+            "users": 69,
+            "ndcg_at_10": 0.24336353157992308,
+            "recall_at_20": 0.08582747846323407
+          }
+        }
+      },
+      "test": {
+        "ndcg_at_10": 0.27257532227241815,
+        "recall_at_20": 0.12100758174767724,
+        "users": 219,
+        "coverage_at_10": 0.07872078720787208,
+        "train_catalog_items": 1626,
+        "unavailable_relevant_fraction": 0.006846970215679562,
+        "latency_ms_p50": 0.042625004425644875,
+        "latency_ms_p95": 0.19491716520860788,
+        "bootstrap_95_ci": {
+          "ndcg_at_10": [
+            0.23000552813516822,
+            0.31248576319112753
+          ],
+          "recall_at_20": [
+            0.10477863536396509,
+            0.1398981595509374
+          ]
+        },
+        "slices": {
+          "cold_user": {
+            "users": 142,
+            "ndcg_at_10": 0.334344454263854,
+            "recall_at_20": 0.12103154783366683
+          },
+          "short_history_1_to_9": {
+            "users": 5,
+            "ndcg_at_10": 0.24681262114479258,
+            "recall_at_20": 0.1391848347730701
+          },
+          "history_10_plus": {
+            "users": 72,
+            "ndcg_at_10": 0.15254194397872692,
+            "recall_at_20": 0.11969800606243432
+          },
+          "has_unavailable_relevant_item": {
+            "users": 38,
+            "ndcg_at_10": 0.2819804399126342,
+            "recall_at_20": 0.09970354078438537
+          }
+        }
+      },
+      "test_fit_seconds": 0.10544604097958654
+    },
+    "svd": {
+      "validation": {
+        "ndcg_at_10": 0.2286693429270084,
+        "recall_at_20": 0.13331048812537602,
+        "users": 238,
+        "coverage_at_10": 0.2005092297899427,
+        "train_catalog_items": 1571,
+        "unavailable_relevant_fraction": 0.013368983957219251,
+        "latency_ms_p50": 0.04954152973368764,
+        "latency_ms_p95": 0.13705002493225035,
+        "bootstrap_95_ci": {
+          "ndcg_at_10": [
+            0.19654414078340726,
+            0.26520384304918126
+          ],
+          "recall_at_20": [
+            0.11464390257353901,
+            0.15202925927462313
+          ]
+        },
+        "slices": {
+          "cold_user": {
+            "users": 133,
+            "ndcg_at_10": 0.32010129190391245,
+            "recall_at_20": 0.11843826580425619
+          },
+          "short_history_1_to_9": {
+            "users": 2,
+            "ndcg_at_10": 0.19978443569194881,
+            "recall_at_20": 0.08
+          },
+          "history_10_plus": {
+            "users": 103,
+            "ndcg_at_10": 0.11116760118469655,
+            "recall_at_20": 0.15354958079488756
+          },
+          "has_unavailable_relevant_item": {
+            "users": 69,
+            "ndcg_at_10": 0.26125483925629445,
+            "recall_at_20": 0.1012702971446155
+          }
+        }
+      },
+      "test": {
+        "ndcg_at_10": 0.27699738332133256,
+        "recall_at_20": 0.1420866092652155,
+        "users": 219,
+        "coverage_at_10": 0.17035670356703567,
+        "train_catalog_items": 1626,
+        "unavailable_relevant_fraction": 0.006846970215679562,
+        "latency_ms_p50": 0.039207981899380684,
+        "latency_ms_p95": 0.13150825980119407,
+        "bootstrap_95_ci": {
+          "ndcg_at_10": [
+            0.236816128628617,
+            0.3176831595059039
+          ],
+          "recall_at_20": [
+            0.12328514538181844,
+            0.1644011637987757
+          ]
+        },
+        "slices": {
+          "cold_user": {
+            "users": 142,
+            "ndcg_at_10": 0.334344454263854,
+            "recall_at_20": 0.12103154783366683
+          },
+          "short_history_1_to_9": {
+            "users": 5,
+            "ndcg_at_10": 0.2462464104556225,
+            "recall_at_20": 0.11645756204579735
+          },
+          "history_10_plus": {
+            "users": 72,
+            "ndcg_at_10": 0.16603169985592292,
+            "recall_at_20": 0.1853916642565627
+          },
+          "has_unavailable_relevant_item": {
+            "users": 38,
+            "ndcg_at_10": 0.2815576267427236,
+            "recall_at_20": 0.12032751262256036
+          }
+        }
+      },
+      "test_fit_seconds": 0.03248145803809166
+    }
+  }
+}

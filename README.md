@@ -1,12 +1,65 @@
 # Movie Recommender
 
-**A comparison of collaborative, content-based and hybrid recommendation methods on MovieLens.**
+**Recommendation baselines on MovieLens, evaluated on a strict future time period.**
 
 [Source](https://github.com/ssivitskii/Movie-Recommender) · [Issues](https://github.com/ssivitskii/Movie-Recommender/issues) · [Contributing](CONTRIBUTING.md)
 
 ## What it does
 
 Generates recommendations for existing users and finds similar movies. The repository exposes a Python interface, command-line scripts and a Streamlit app.
+
+The research entry point is `src.temporal_benchmark`: train-only popularity,
+sparse item cosine, and low-rank SVD evaluated against the full eligible catalog.
+The original models and Streamlit workflow remain available separately.
+
+## Chronological benchmark
+
+Measured on the official MovieLens 100K data, 2026-10-24. Complete protocol,
+hashes, versions, validation metrics and intervals:
+[`reports/temporal_ml100k.json`](reports/temporal_ml100k.json).
+
+| Fixed baseline | Test NDCG@10 | Test Recall@20 | Catalog coverage@10 |
+| --- | ---: | ---: | ---: |
+| Popularity | 0.2687 | 0.1293 | 4.67% |
+| Sparse item cosine, 50 neighbors | 0.2726 | 0.1210 | 7.87% |
+| Sparse SVD, 32 factors | 0.2770 | 0.1421 | 17.04% |
+
+There are 219 test users with relevant targets; **142 are absent from fitting**
+and receive the same popularity fallback in all methods. Among 72 users with at
+least ten earlier ratings, SVD Recall@20 is 0.1854 versus popularity's 0.1448.
+This single split does not establish statistical superiority: reported intervals
+are user-bootstrap uncertainty conditional on fitted models, not a paired test
+of improvements or evidence of online lift.
+
+```bash
+# For the recorded benchmark, use Python 3.12 and these numerical versions:
+python -m pip install -r requirements-benchmark.txt
+python -m src.temporal_benchmark --data-dir data --output reports/temporal_ml100k.json
+```
+
+The loader downloads the official MovieLens 100K archive if it is missing.
+The benchmark uses global time boundaries at 70% and 85% of unique timestamps;
+equal timestamps stay together. Parameters are fixed before evaluation. Each
+model is evaluated on validation, then refitted on train+validation for the
+future test period. Test interactions never enter popularity, neighbors,
+embeddings or user histories.
+
+Recommendations rank every item observed before the evaluation cutoff, with
+previously rated items excluded. Ratings of at least four are relevant. Users
+with no positive future targets are excluded from ranking averages. New users
+fall back to popularity; new items cannot be recommended and remain in recall
+and NDCG denominators. This makes cold-start failure visible rather than silently
+discarding it.
+
+The JSON report records input SHA-256, split boundaries and sizes, versions,
+NDCG@10, Recall@20, coverage@10, user-bootstrap intervals, and slices for new
+users, short histories, and unavailable relevant items. Coverage uses the
+train-observed catalog denominator. Scoring latency is local single-process
+measurement, excluding service/network overhead.
+
+This is an explicit-rating benchmark, not a logged impression experiment. An
+unrated movie is not a confirmed negative, and an offline metric is not online
+engagement lift. The first observed rating only approximates catalog availability.
 
 | Model key | Approach |
 | --- | --- |
@@ -62,11 +115,11 @@ print(recommendations)
 python -m pytest
 ```
 
-The evaluation code computes rating errors (RMSE and MAE) and ranking metrics including Precision@K, Recall@K and NDCG@K. Record the dataset, filtering, split, model parameters and relevance threshold with each experiment. No versioned benchmark report is included, so this README does not advertise fixed quality or latency numbers.
+The legacy evaluation code computes rating errors (RMSE and MAE) and ranking metrics including Precision@K, Recall@K and NDCG@K. Use the chronological benchmark above for the documented future-period comparison; its results are not interchangeable with the older random-split evaluation.
 
-The default data split is random, not chronological. The hybrid uses fixed weights (SVD 0.5, item-based 0.3, content-based 0.2). Dense matrices limit scalability, and cold-start handling is not a production solution.
+The legacy app's default data split is random. The hybrid uses fixed weights (SVD 0.5, item-based 0.3, content-based 0.2). Legacy dense matrices limit scalability. The independent chronological runner uses sparse interaction matrices; it still materializes item-neighbor similarities and one user's score vector, so it is intended for MovieLens 100K rather than a web-scale catalog.
 
-The saved-model CLI paths need further work: `src.predict --model-path` refers to a missing `load_model` method, and loading does not restore all state used by evaluation. Use the in-memory training workflow above. `--show-history` and `--similar-to` in the prediction script are also incomplete.
+Saved model format 2 restores inference, history and evaluation state. The prediction CLI supports `--model-path`, `--show-history` and `--similar-to`. Older model files can still load for inference, but may lack the state needed to evaluate or show history; retrain and save to obtain it. Pickle files must come from a trusted source.
 
 ## Repository map
 
@@ -77,6 +130,7 @@ The saved-model CLI paths need further work: `src.predict --model-path` refers t
 | `src/data_loader.py` | MovieLens loading and preparation |
 | `src/metrics.py` | Evaluation metrics |
 | `src/train.py`, `src/evaluate.py` | Training and comparison CLI |
+| `src/temporal_benchmark.py` | Chronological sparse-baseline experiment |
 | `streamlit_app.py` | Web interface |
 | `notebooks/01_eda.py` | Exploratory analysis script |
 | `tests/` | Automated tests |

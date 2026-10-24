@@ -125,18 +125,29 @@ class MovieRecommender:
 
     def evaluate(self, threshold: float = 4.0) -> Dict[str, float]:
         if not self._fitted: raise ValueError("Model not fitted")
+        if getattr(self, 'test_data', None) is None or getattr(self, 'ratings_matrix', None) is None:
+            raise ValueError("This older model file has no evaluation state; retrain and save it again")
         processed = self.preprocessor.transform(self.test_data)
-        tuples = [(r['user_idx'], r['item_idx'], r['rating']) for _, r in processed.iterrows()]
+        tuples = [(int(r['user_idx']), int(r['item_idx']), float(r['rating'])) for _, r in processed.iterrows()]
         evaluator = RecommenderEvaluator(k_values=[5, 10, 20])
         res = evaluator.full_evaluation(self.model, tuples, n_items=self.ratings_matrix.shape[1], threshold=threshold)
         evaluator.print_results(res, f"{self.model_name} Evaluation")
         return res
 
     def save(self, filepath: str = None):
+        if not self._fitted:
+            raise ValueError("Model not fitted")
         if filepath is None: filepath = self.models_dir / f"{self.model_name}_{self.dataset}.pkl"
+        # Persist evaluation/history state as well as inference state. Only load
+        # pickle files that you created or otherwise trust.
+        state_names = ('ratings', 'train_data', 'test_data', 'ratings_matrix', 'genre_matrix',
+                       'genre_names', 'movie_to_idx', 'idx_to_movie', 'model_params',
+                       'data_dir', 'models_dir')
+        state = {name: getattr(self, name, None) for name in state_names}
         with open(filepath, 'wb') as f:
             pickle.dump({'model': self.model, 'preprocessor': self.preprocessor, 'movies': self.movies, 
-                         'title_to_movie_id': self.title_to_movie_id, 'model_name': self.model_name, 'dataset': self.dataset}, f)
+                         'title_to_movie_id': self.title_to_movie_id, 'model_name': self.model_name,
+                         'dataset': self.dataset, 'format_version': 2, 'state': state}, f)
 
     @classmethod
     def load(cls, filepath: str) -> 'MovieRecommender':
@@ -144,5 +155,24 @@ class MovieRecommender:
         recommender = cls.__new__(cls)
         recommender.model, recommender.preprocessor, recommender.movies = d['model'], d['preprocessor'], d['movies']
         recommender.title_to_movie_id, recommender.model_name, recommender.dataset = d['title_to_movie_id'], d['model_name'], d['dataset']
+        recommender.__dict__.update(d.get('state', {}))
+        recommender.models_dir = Path(getattr(recommender, 'models_dir', None) or 'models/trained')
+        recommender.data_dir = Path(getattr(recommender, 'data_dir', None) or 'data')
+        recommender.data_loader = MovieLensDataLoader(recommender.dataset, str(recommender.data_dir))
         recommender._fitted = True
         return recommender
+
+    def load_model(self, filepath: str) -> 'MovieRecommender':
+        """Compatibility API for the prediction CLI; trust the pickle source."""
+        self.__dict__.update(type(self).load(filepath).__dict__)
+        return self
+
+    def get_user_history(self, user_id: int) -> pd.DataFrame:
+        ratings = getattr(self, 'ratings', None)
+        if ratings is None:
+            ratings = getattr(self, 'train_data', None)
+        if ratings is None:
+            raise ValueError("This model file does not contain user history")
+        history = ratings[ratings.user_id == user_id].merge(self.movies, on='movie_id', how='left')
+        order = 'timestamp' if 'timestamp' in history.columns else 'rating'
+        return history.sort_values(order, ascending=False).reset_index(drop=True)
