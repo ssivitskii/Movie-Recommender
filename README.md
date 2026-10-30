@@ -1,16 +1,46 @@
-# Movie Recommender
+<picture>
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="docs/assets/readme/cover-dark-mobile.svg">
+  <source media="(max-width: 600px)" srcset="docs/assets/readme/cover-light-mobile.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/cover-dark.svg">
+  <img src="docs/assets/readme/cover-light.svg" width="100%" alt="Movie Recommender — Finding the next film from past interactions">
+</picture>
+
+<p align="center">
+  <a href="#architecture">Architecture</a> &nbsp;·&nbsp;
+  <a href="#chronological-benchmark">Benchmark</a> &nbsp;·&nbsp;
+  <a href="#run-locally">Run locally</a> &nbsp;·&nbsp;
+  <a href="#python-interface">Python API</a> &nbsp;·&nbsp;
+  <a href="#evaluation-and-limitations">Limits</a>
+</p>
+
+## Overview
 
 **Recommendation baselines on MovieLens, evaluated on a strict future time period.**
 
-[Source](https://github.com/ssivitskii/Movie-Recommender) · [Issues](https://github.com/ssivitskii/Movie-Recommender/issues) · [Contributing](CONTRIBUTING.md)
-
-## What it does
+<a id="what-it-does"></a>
 
 Generates recommendations for existing users and finds similar movies. The repository exposes a Python interface, command-line scripts and a Streamlit app.
 
 The research entry point is `src.temporal_benchmark`: train-only popularity,
 sparse item cosine, and low-rank SVD evaluated against the full eligible catalog.
 The original models and Streamlit workflow remain available separately.
+
+## Architecture
+
+<picture>
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="docs/assets/readme/architecture-dark-mobile.svg">
+  <source media="(max-width: 600px)" srcset="docs/assets/readme/architecture-light-mobile.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/architecture-dark.svg">
+  <img src="docs/assets/readme/architecture-light.svg" width="100%" alt="Chronological benchmark: MovieLens ratings → grouped time boundaries → popularity, sparse cosine and SVD, validated then refitted on train plus validation → full-catalog future test. Separate interactive workflow: data loader → MovieRecommender → legacy models → CLI or Streamlit.">
+</picture>
+
+| Path through the project | Entry point | Evaluation contract |
+| --- | --- | --- |
+| Sparse baseline benchmark | [`src/temporal_benchmark.py`](src/temporal_benchmark.py) | Fixed parameters; validate, refit on train+validation, evaluate the future test period |
+| Interactive recommendations | [`src/recommender.py`](src/recommender.py) → [`streamlit_app.py`](streamlit_app.py) | Original random-split workflow and legacy model implementations |
+
+The benchmark ranks the full eligible catalog, excludes previously rated items
+and uses popularity for new users. Its numbers do not describe the Streamlit app.
 
 ## Chronological benchmark
 
@@ -61,16 +91,6 @@ This is an explicit-rating benchmark, not a logged impression experiment. An
 unrated movie is not a confirmed negative, and an offline metric is not online
 engagement lift. The first observed rating only approximates catalog availability.
 
-| Model key | Approach |
-| --- | --- |
-| `svd` | Matrix factorization |
-| `user_cf` | User-based collaborative filtering |
-| `item_cf` | Item-based collaborative filtering |
-| `content` | Content-based similarity |
-| `hybrid` | Weighted combination of SVD, item-based and content models |
-
-**Stack:** Python · NumPy · pandas · SciPy · scikit-learn · Streamlit
-
 ## Run locally
 
 Use Python 3.11:
@@ -95,6 +115,18 @@ python -m src.evaluate --model all --dataset ml-100k
 # Open the web interface
 python -m streamlit run streamlit_app.py
 ```
+
+### Interactive model choices
+
+| Model key | Approach |
+| --- | --- |
+| `svd` | Matrix factorization |
+| `user_cf` | User-based collaborative filtering |
+| `item_cf` | Item-based collaborative filtering |
+| `content` | Content-based similarity |
+| `hybrid` | Weighted combination of SVD, item-based and content models |
+
+**Stack:** Python · NumPy · pandas · SciPy · scikit-learn · Streamlit
 
 ### Python interface
 
@@ -138,3 +170,9 @@ Saved model format 2 restores inference, history and evaluation state. The predi
 ## License and data
 
 Code: [MIT](LICENSE). MovieLens datasets are provided by [GroupLens](https://grouplens.org/datasets/movielens/) under their own usage terms.
+
+[Contributing](CONTRIBUTING.md) · [Report an issue](https://github.com/ssivitskii/Movie-Recommender/issues)
+
+---
+
+[← Back to portfolio](https://github.com/ssivitskii#selected-work)

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="354" viewBox="0 0 1200 354" role="img" aria-labelledby="title desc">
+<title id="title">Movie Recommender</title>
+<desc id="desc">Past interactions. The next film.</desc>
+<rect x="1" y="1" width="1198" height="352" rx="22" fill="#201E18" stroke="#514830"/>
+<g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif">
+<text x="48" y="43" font-size="15" fill="#E4BF68" font-weight="700" letter-spacing="1.6">RECOMMENDER SYSTEMS</text>
+<text x="46" y="127" font-size="62" fill="#FAF5E5" font-weight="750" letter-spacing="-2">Movie Recommender</text>
+<text x="48" y="180" font-size="25" fill="#C6BA9A" font-weight="400" >Past interactions.</text>
+<text x="48" y="214" font-size="25" fill="#C6BA9A" font-weight="400" >The next film.</text>
+<g transform="translate(862 22)"><rect width="286" height="222" rx="18" fill="#333022"/><text x="20" y="31" font-size="12" fill="#C6BA9A" font-weight="700" letter-spacing=".7">DISCOVER YOUR NEXT FILM</text><rect x="20" y="72" width="64" height="108" rx="9" fill="#E4BF68" opacity="0.35"/><path d="M42 106L64 121L42 136Z" fill="#201E18"/><rect x="27" y="80" width="9" height="5" rx="1" fill="#201E18" opacity=".85"/><rect x="40" y="80" width="9" height="5" rx="1" fill="#201E18" opacity=".85"/><rect x="53" y="80" width="9" height="5" rx="1" fill="#201E18" opacity=".85"/><rect x="66" y="80" width="9" height="5" rx="1" fill="#201E18" opacity=".85"/><rect x="101" y="51" width="64" height="137" rx="9" fill="#E4BF68" opacity="1"/><path d="M123 85L145 100L123 115Z" fill="#201E18"/><rect x="108" y="59" width="9" height="5" rx="1" fill="#201E18" opacity=".85"/><rect x="121" y="59" width="9" height="5" rx="1" fill="#201E18" opacity=".85"/><rect x="134" y="59" width="9" height="5" rx="1" fill="#201E18" opacity=".85"/><rect x="147" y="59" width="9" height="5" rx="1" fill="#201E18" opacity=".85"/><rect x="182" y="72" width="64" height="108" rx="9" fill="#E4BF68" opacity="0.5"/><path d="M204 106L226 121L204 136Z" fill="#201E18"/><rect x="189" y="80" width="9" height="5" rx="1" fill="#201E18" opacity=".85"/><rect x="202" y="80" width="9" height="5" rx="1" fill="#201E18" opacity=".85"/><rect x="215" y="80" width="9" height="5" rx="1" fill="#201E18" opacity=".85"/><rect x="228" y="80" width="9" height="5" rx="1" fill="#201E18" opacity=".85"/><text x="20" y="209" font-size="10" fill="#C6BA9A" font-weight="600" letter-spacing=".5">RANKING / COVERAGE / COLD START</text></g>
+<path d="M48 253H1152" stroke="#514830"/>
+<text x="48" y="286" font-size="12" fill="#E4BF68" font-weight="700" letter-spacing="1.5">DATA</text>
+<text x="48" y="318" font-size="22" fill="#FAF5E5" font-weight="550" >MovieLens</text>
+<text x="323" y="286" font-size="12" fill="#E4BF68" font-weight="700" letter-spacing="1.5">RANKING</text>
+<text x="323" y="318" font-size="22" fill="#FAF5E5" font-weight="550" >Sparse baselines</text>
+<text x="598" y="286" font-size="12" fill="#E4BF68" font-weight="700" letter-spacing="1.5">EVALUATION</text>
+<text x="598" y="318" font-size="22" fill="#FAF5E5" font-weight="550" >Future-time holdout</text>
+<text x="1148" y="318" font-size="13" fill="#C6BA9A" font-weight="600" text-anchor="end" letter-spacing="2">ML / DS</text>
+</g></svg>
